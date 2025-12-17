@@ -9,14 +9,28 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.954.0",
+    "@aws-sdk/client-s3": "^3.954.0",
+    "@aws-sdk/lib-dynamodb": "^3.954.0",
+    "compute-cosine-similarity": "^1.1.0",
+    "lucide-react": "^0.561.0",
+    "mammoth": "^1.11.0",
+    "natural": "^8.1.0",
     "next": "16.0.10",
+    "pdf-parse": "^2.4.5",
     "react": "19.2.1",
-    "react-dom": "19.2.1"
+    "react-dom": "19.2.1",
+    "react-dropzone": "^14.3.8",
+    "stopwords": "^0.0.9",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/natural": "^5.1.5",
     "@types/node": "^20",
+    "@types/pdf-parse": "^1.1.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.0.10",
