@@ -49,11 +49,16 @@ export default function Home() {
       });
 
       const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Analysis failed");
+      }
+
       setResult(data);
       setStep(3);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Analysis failed. Please try again.");
+      alert(e.message || "Analysis failed. Please try again.");
     } finally {
       setLoading(false);
     }

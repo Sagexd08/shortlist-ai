@@ -13,7 +13,14 @@ export async function POST(req: NextRequest) {
         }
 
         // 1. Run Analysis Pipeline
-        const analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown");
+        console.log("Starting analysis for:", resumeId);
+        let analysisResult;
+        try {
+            analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown");
+        } catch (analysisError) {
+            console.error("Detailed Analysis Error:", analysisError);
+            return NextResponse.json({ error: "Failed to analyze resume content. Please check the file content." }, { status: 500 });
+        }
 
         // 2. Persist Results to DynamoDB
         if (TABLE_NAME) {

@@ -1,9 +1,11 @@
 import { Skill, SkillCategory, ScoredSkill, MissingSkill, AnalysisResult } from './types';
-import natural from 'natural';
 // @ts-ignore
-import computeCosineSimilarity from 'compute-cosine-similarity';
+const natural = require('natural');
 // @ts-ignore
-import stopword from 'stopword';
+// @ts-ignore
+const computeCosineSimilarity = require('compute-cosine-similarity');
+// @ts-ignore
+const stopword = require('stopword');
 
 // --- DATA: Skill Taxonomy (Extensible) ---
 // In a real app, this might come from a DB or separate JSON file.
