@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
         }
 
+        console.log(`Processing file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+
         const buffer = Buffer.from(await file.arrayBuffer());
         const fileId = uuidv4();
         const ext = file.name.split('.').pop()?.toLowerCase();
@@ -46,8 +48,11 @@ export async function POST(req: NextRequest) {
             text: text
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Upload Error:", error);
-        return NextResponse.json({ error: "Internal Server Error during upload" }, { status: 500 });
+        return NextResponse.json({
+            error: "Internal Server Error during upload",
+            details: error.message || String(error)
+        }, { status: 500 });
     }
 }

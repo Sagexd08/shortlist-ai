@@ -1,3 +1,5 @@
+'use client';
+
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,6 +12,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Toaster } from 'sonner';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -94,6 +97,8 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </motion.div>
       </main>
-    </div>
+      </main>
+      <Toaster position="top-right" richColors theme="dark" />
+    </div >
   );
 }

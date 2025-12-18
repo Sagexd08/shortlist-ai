@@ -48,11 +48,12 @@ export function ResumeUpload({ onFileSelect, selectedFile, onClear }: ResumeUplo
         body: formData,
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error('Failed to parse file');
+        throw new Error(data.details || data.error || 'Failed to upload/parse file');
       }
 
-      const data = await res.json();
       onFileSelect(file, data.text);
 
     } catch (err) {

@@ -19,7 +19,9 @@ export async function POST(req: NextRequest) {
             analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown");
         } catch (analysisError) {
             console.error("Detailed Analysis Error:", analysisError);
-            return NextResponse.json({ error: "Failed to analyze resume content. Please check the file content." }, { status: 500 });
+            return NextResponse.json({
+                error: `Failed to analyze resume content: ${analysisError instanceof Error ? analysisError.message : String(analysisError)}`
+            }, { status: 500 });
         }
 
         // 2. Persist Results to DynamoDB

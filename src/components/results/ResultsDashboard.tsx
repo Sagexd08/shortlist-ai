@@ -1,11 +1,12 @@
 import { motion } from 'framer-motion';
-import { Target, PieChart, TrendingUp, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Target, PieChart, TrendingUp, AlertTriangle, ArrowLeft, Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { MetricCard } from './MetricCard';
 import { SkillsSection } from './SkillsSection';
 import { SemanticMatchView } from './SemanticMatchView';
 import { RecruiterInsightPanel } from './RecruiterInsightPanel';
 import { AnalysisResult } from '@/store/analysisStore';
+import { toast } from 'sonner';
 
 interface ResultsDashboardProps {
   result: AnalysisResult;
@@ -19,20 +20,34 @@ export function ResultsDashboard({ result, onReset }: ResultsDashboardProps) {
     return 'error';
   };
 
+  const handleExport = () => {
+    window.print();
+  };
+
+  const handleShare = async () => {
+    try {
+      const shareText = `Resume Analysis Result:\nName: ${result.resumeName}\nMatch Score: ${result.matchScore}/100\nRecommendation: ${result.recommendation}`;
+      await navigator.clipboard.writeText(shareText);
+      toast.success('Analysis summary copied to clipboard');
+    } catch (err) {
+      toast.error('Failed to copy to clipboard');
+    }
+  };
+
   return (
     <div className="p-6 lg:p-8 space-y-8">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
         <div>
           <Button
             variant="ghost"
             size="sm"
             onClick={onReset}
-            className="mb-2 text-muted-foreground hover:text-foreground"
+            className="mb-2 text-muted-foreground hover:text-foreground no-print"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             New Analysis
@@ -42,11 +57,24 @@ export function ResultsDashboard({ result, onReset }: ResultsDashboardProps) {
             {result.resumeName} → {result.jobTitle}
           </p>
         </div>
-        <div className="text-right">
-          <p className="text-xs text-muted-foreground">Analyzed</p>
-          <p className="text-sm text-foreground">
-            {new Date(result.timestamp).toLocaleString()}
-          </p>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right mr-2 hidden sm:block">
+            <p className="text-xs text-muted-foreground">Analyzed</p>
+            <p className="text-sm text-foreground">
+              {new Date(result.timestamp).toLocaleDateString()}
+            </p>
+          </div>
+          <div className="flex gap-2 no-print">
+            <Button variant="outline" size="sm" onClick={handleExport}>
+              <Download className="w-4 h-4 mr-2" />
+              ExportPDF
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleShare}>
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
+            </Button>
+          </div>
         </div>
       </motion.div>
 
@@ -106,7 +134,12 @@ export function ResultsDashboard({ result, onReset }: ResultsDashboardProps) {
         <div className="lg:col-span-1">
           <RecruiterInsightPanel
             summary={result.aiSummary}
-            recommendation={result.recommendation}
+            recommendation={
+              result.recommendation === 'Shortlist' ? 'strong_fit' :
+                result.recommendation === 'Review' ? 'consider' :
+                  result.recommendation === 'Reject' ? 'weak_fit' :
+                    result.recommendation as 'strong_fit' | 'consider' | 'weak_fit'
+            }
             candidateName={result.resumeName.replace(/\.[^/.]+$/, '')}
             jobTitle={result.jobTitle}
           />

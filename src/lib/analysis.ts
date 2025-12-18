@@ -76,7 +76,8 @@ function extractSkills(text: string): Skill[] {
     const foundSkills: Skill[] = [];
     const normalizedText = text.toLowerCase();
     for (const [skill, category] of Object.entries(SKILL_TAXONOMY)) {
-        const regex = new RegExp(`\\b${skill}\\b`, 'i');
+        const escapedSkill = skill.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`\\b${escapedSkill}\\b`, 'i');
         if (regex.test(normalizedText)) {
             foundSkills.push({ name: skill, category });
         }
