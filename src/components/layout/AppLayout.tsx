@@ -97,8 +97,7 @@ export function AppLayout({ children }: AppLayoutProps) {
           {children}
         </motion.div>
       </main>
-      </main>
       <Toaster position="top-right" richColors theme="dark" />
-    </div >
+    </div>
   );
 }
