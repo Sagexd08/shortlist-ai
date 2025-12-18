@@ -3,9 +3,29 @@
 A production-ready, serverless ATS intelligence platform built with Next.js, Vercel, and AWS (Free Tier).
 Designed for recruiters and hiring managers to instantly analyze skill gaps and shortlist probabilities.
 
-![Dashboard Preview](https://via.placeholder.com/800x400?text=Dashboard+UI+Preview)
+![Dashboard Preview](/dashboard-preview.png)
 
 ## 🏗 Architecture
+
+The system is built on a **Serverless Event-Driven Architecture** designed for high availability and low latency.
+
+### High-Level Data Flow
+
+1.  **Ingestion Layer**:
+    *   The user uploads a resume (PDF/DOCX) via the frontend.
+    *   This triggers a request to `/api/upload` which securely stores the raw file in **Amazon S3**.
+    *   Simultaneously, the file is processed by the **Parser Engine** (using `mammoth` and `pdf2json`) to extract raw text.
+
+2.  **Analysis Layer**:
+    *   The extracted text and the provided Job Description are sent to the `/api/analyze` endpoint.
+    *   **Skill Intelligence Engine**: This core logic calculates the match score using:
+        *   **TF-IDF & Cosine Similarity**: For semantic relevance.
+        *   **Regex Taxonomy Matching**: To identify specific hard skills.
+        *   **Heuristic Scoring**: To determine a final "match percentage".
+
+3.  **Persistence Layer**:
+    *   The structured analysis results (scores, matched skills, missing skills) are saved to **Amazon DynamoDB** for fast retrieval.
+    *   Recruiters can query these results instantly via the `/history` view.
 
 ```ascii
 [ User Client ] <---> [ Vercel Edge Network ]
