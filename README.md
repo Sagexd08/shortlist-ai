@@ -3,7 +3,7 @@
 A production-ready, serverless ATS intelligence platform built with Next.js, Vercel, and AWS (Free Tier).
 Designed for recruiters and hiring managers to instantly analyze skill gaps and shortlist probabilities.
 
-![Dashboard Preview](/dashboard-preview.png)
+![Dashboard Preview](/public/dashboard-preview.png)
 
 ## 🏗 Architecture
 
