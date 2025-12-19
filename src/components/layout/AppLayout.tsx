@@ -1,15 +1,17 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard,
   History,
   Settings,
   FileText,
-  Sparkles
+  Sparkles,
+  Menu,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Toaster } from 'sonner';
@@ -26,13 +28,51 @@ const navItems = [
 
 export function AppLayout({ children }: AppLayoutProps) {
   const pathname = usePathname();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between p-4 border-b border-border bg-sidebar sticky top-0 z-40">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-primary-foreground" />
+          </div>
+          <span className="font-semibold text-lg">
+            <span className="gradient-text">Shortlist</span>
+            <span className="text-muted-foreground">.ai</span>
+          </span>
+        </div>
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="p-2 rounded-lg hover:bg-accent text-muted-foreground"
+        >
+          {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Sidebar Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-sidebar flex flex-col fixed inset-y-0 h-full">
-        {/* Logo */}
-        <div className="h-16 flex items-center gap-3 px-6 border-b border-border">
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-border flex flex-col transition-transform duration-300 ease-in-out md:translate-x-0",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        {/* Logo (Desktop) */}
+        <div className="h-16 hidden md:flex items-center gap-3 px-6 border-b border-border">
           <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-primary-foreground" />
           </div>
@@ -42,6 +82,15 @@ export function AppLayout({ children }: AppLayoutProps) {
           </span>
         </div>
 
+        {/* Mobile Header in Sidebar (for close button alignment/branding) */}
+         <div className="h-16 flex md:hidden items-center justify-between px-6 border-b border-border">
+            <span className="font-semibold text-lg">Menu</span>
+            <button onClick={() => setIsSidebarOpen(false)}>
+               <X className="w-5 h-5 text-muted-foreground" />
+            </button>
+         </div>
+
+
         {/* Navigation */}
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map((item) => {
@@ -50,6 +99,7 @@ export function AppLayout({ children }: AppLayoutProps) {
               <Link
                 key={item.path}
                 href={item.path}
+                onClick={() => setIsSidebarOpen(false)}
                 className={cn(
                   "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative",
                   isActive
@@ -86,7 +136,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto ml-64">
+      <main className="flex-1 overflow-auto md:ml-64 w-full">
         <motion.div
           key={pathname}
           initial={{ opacity: 0, y: 8 }}
