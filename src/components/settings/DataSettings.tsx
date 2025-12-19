@@ -17,15 +17,28 @@ export function DataSettings() {
         toast.success("History cleared successfully");
     };
 
-    const handleExport = () => {
-        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(history, null, 2));
-        const downloadAnchorNode = document.createElement('a');
-        downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", `shortlist_export_${new Date().toISOString()}.json`);
-        document.body.appendChild(downloadAnchorNode);
-        downloadAnchorNode.click();
-        downloadAnchorNode.remove();
-        toast.success("Data exported");
+    const handleExport = async () => {
+        try {
+            // Use Blob to handle large data without freezing UI with huge base64 strings
+            const jsonString = JSON.stringify(history, null, 2);
+            const blob = new Blob([jsonString], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.href = url;
+            downloadAnchorNode.download = `shortlist_export_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+
+            // Cleanup
+            document.body.removeChild(downloadAnchorNode);
+            URL.revokeObjectURL(url);
+
+            toast.success(`Successfully exported ${history.length} records`);
+        } catch (error) {
+            console.error("Export failed:", error);
+            toast.error("Failed to export data");
+        }
     };
 
     return (

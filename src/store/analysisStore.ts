@@ -77,7 +77,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     }, 1200);
 
     try {
-      const { weights, strictness } = useSettingsStore.getState();
+      const { weights, strictness, customSkills } = useSettingsStore.getState();
 
       const res = await fetch('/api/analyze', {
         method: 'POST',
@@ -87,7 +87,7 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
           text: resumeText,
           jdText: jobDescription,
           originalName: resumeName,
-          options: { weights, strictness }
+          options: { weights, strictness, customSkills }
         }),
       });
 

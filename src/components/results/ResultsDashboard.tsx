@@ -25,12 +25,25 @@ export function ResultsDashboard({ result, onReset }: ResultsDashboardProps) {
   };
 
   const handleShare = async () => {
+    const shareData = {
+      title: `Resume Analysis: ${result.resumeName}`,
+      text: `🚀 Resume Analysis Report\n\n📄 Candidate: ${result.resumeName}\n💼 Role: ${result.jobTitle}\n\n✅ Match Score: ${result.matchScore}/100\n📊 Skill Coverage: ${result.skillCoverage}%\n🎯 Recommendation: ${result.recommendation}\n\n📝 Summary: ${result.aiSummary}\n\nAnalyzed by Shortlist AI`
+    };
+
     try {
-      const shareText = `Resume Analysis Result:\nName: ${result.resumeName}\nMatch Score: ${result.matchScore}/100\nRecommendation: ${result.recommendation}`;
-      await navigator.clipboard.writeText(shareText);
-      toast.success('Analysis summary copied to clipboard');
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success('Shared successfully');
+      } else {
+        await navigator.clipboard.writeText(shareData.text);
+        toast.success('Detailed report copied to clipboard');
+      }
     } catch (err) {
-      toast.error('Failed to copy to clipboard');
+      console.error('Share failed:', err);
+      // Fallback if share is cancelled or fails
+      if ((err as Error).name !== 'AbortError') {
+        toast.error('Failed to share results');
+      }
     }
   };
 

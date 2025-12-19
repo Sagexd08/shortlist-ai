@@ -57,4 +57,5 @@ export interface AnalysisWeights {
 export interface AnalysisOptions {
   weights: AnalysisWeights;
   strictness: 'low' | 'medium' | 'high';
+  customSkills?: Skill[];
 }

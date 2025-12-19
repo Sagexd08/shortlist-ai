@@ -2,18 +2,21 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Database } from 'lucide-react';
+import { Settings, Database, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AnalysisSettings } from './AnalysisSettings';
 import { DataSettings } from './DataSettings';
 
-type SettingsTab = 'analysis' | 'data';
+import { CustomSkillsSettings } from './CustomSkillsSettings';
+
+type SettingsTab = 'analysis' | 'training' | 'data';
 
 export function SettingsPage() {
     const [activeTab, setActiveTab] = useState<SettingsTab>('analysis');
 
     const tabs = [
         { id: 'analysis', label: 'Analysis Logic', icon: Settings },
+        { id: 'training', label: 'Training & Knowledge', icon: BookOpen },
         { id: 'data', label: 'Data Management', icon: Database },
     ];
 
@@ -60,6 +63,7 @@ export function SettingsPage() {
                             transition={{ duration: 0.2 }}
                         >
                             {activeTab === 'analysis' && <AnalysisSettings />}
+                            {activeTab === 'training' && <CustomSkillsSettings />}
                             {activeTab === 'data' && <DataSettings />}
                         </motion.div>
                     </AnimatePresence>
