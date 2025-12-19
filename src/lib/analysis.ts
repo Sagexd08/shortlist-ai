@@ -1,4 +1,5 @@
 import { Skill, SkillCategory, ScoredSkill, MissingSkill, AnalysisResult, AnalysisOptions } from './types';
+import { getEmbedding, cosineSimilarity } from './ai-model';
 const natural = require('natural');
 const computeCosineSimilarity = require('compute-cosine-similarity');
 const stopword = require('stopword');
@@ -19,17 +20,30 @@ const SKILL_TAXONOMY: Record<string, SkillCategory> = {
     "mentorship": "Soft Skills", "collaboration": "Soft Skills",
 };
 
-export function analyzeResume(
+export async function analyzeResume(
     resumeText: string,
     jdText: string,
     resumeId: string,
     originalFileName: string,
     options?: AnalysisOptions
-): AnalysisResult {
+): Promise<AnalysisResult> {
     const timestamp = new Date().toISOString();
     const resumeSkills = extractSkills(resumeText);
     const jdSkills = extractSkills(jdText);
-    const similarity = computeSemanticSimilarity(resumeText, jdText);
+
+    // AI Semantic Similarity (Transformers.js)
+    let similarity = 0;
+    try {
+        const resumeEmbedding = await getEmbedding(resumeText);
+        const jdEmbedding = await getEmbedding(jdText);
+        // Cosine similarity returns 0-1, we scale to 0-100
+        similarity = Math.max(0, cosineSimilarity(resumeEmbedding, jdEmbedding)) * 100;
+        console.log(`ML Semantic Score: ${similarity.toFixed(2)}%`);
+    } catch (error) {
+        console.error("ML Model Error, falling back to basic tokenizer:", error);
+        similarity = computeBasicSimilarity(resumeText, jdText);
+    }
+
     const { missing, present, extra, skillMatchScore } = analyzeSkillGaps(resumeSkills, jdSkills);
     const keywordCoverage = computeKeywordCoverage(resumeText, jdText);
 
@@ -118,7 +132,7 @@ function extractSkills(text: string): Skill[] {
     return foundSkills;
 }
 
-function computeSemanticSimilarity(text1: string, text2: string): number {
+function computeBasicSimilarity(text1: string, text2: string): number {
     const tokenizer = new natural.WordTokenizer();
     const tokens1 = tokenizer.tokenize(text1.toLowerCase());
     const tokens2 = tokenizer.tokenize(text2.toLowerCase());

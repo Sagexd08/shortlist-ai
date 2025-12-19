@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         console.log("Starting analysis for:", resumeId);
         let analysisResult;
         try {
-            analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown", options);
+            analysisResult = await analyzeResume(text, jdText, resumeId, originalName || "Unknown", options);
         } catch (analysisError) {
             console.error("Detailed Analysis Error:", analysisError);
             return NextResponse.json({
