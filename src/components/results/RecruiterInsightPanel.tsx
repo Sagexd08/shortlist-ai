@@ -8,6 +8,8 @@ interface RecruiterInsightPanelProps {
   recommendation: 'strong_fit' | 'consider' | 'weak_fit';
   candidateName?: string;
   jobTitle?: string;
+  onExport: () => void;
+  onShare: () => void;
 }
 
 const recommendationConfig = {
@@ -34,11 +36,13 @@ const recommendationConfig = {
   },
 };
 
-export function RecruiterInsightPanel({ 
-  summary, 
+export function RecruiterInsightPanel({
+  summary,
   recommendation,
   candidateName = 'Candidate',
-  jobTitle = 'Position'
+  jobTitle = 'Position',
+  onExport,
+  onShare
 }: RecruiterInsightPanelProps) {
   const config = recommendationConfig[recommendation];
   const Icon = config.icon;
@@ -95,11 +99,11 @@ export function RecruiterInsightPanel({
 
       {/* Actions */}
       <div className="p-4 space-y-2">
-        <Button className="w-full justify-center gap-2" variant="default">
+        <Button onClick={onExport} className="w-full justify-center gap-2" variant="default">
           <Download className="w-4 h-4" />
           Export Report
         </Button>
-        <Button className="w-full justify-center gap-2" variant="outline">
+        <Button onClick={onShare} className="w-full justify-center gap-2" variant="outline">
           <Share2 className="w-4 h-4" />
           Share Results
         </Button>

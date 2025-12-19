@@ -155,6 +155,8 @@ export function ResultsDashboard({ result, onReset }: ResultsDashboardProps) {
             }
             candidateName={result.resumeName.replace(/\.[^/.]+$/, '')}
             jobTitle={result.jobTitle}
+            onExport={handleExport}
+            onShare={handleShare}
           />
         </div>
       </div>
