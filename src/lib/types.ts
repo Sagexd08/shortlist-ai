@@ -47,3 +47,14 @@ export interface AnalysisRequest {
   resumeId: string;
   jobDescription: string;
 }
+
+export interface AnalysisWeights {
+  semantic: number;
+  skills: number;
+  keywords: number;
+}
+
+export interface AnalysisOptions {
+  weights: AnalysisWeights;
+  strictness: 'low' | 'medium' | 'high';
+}

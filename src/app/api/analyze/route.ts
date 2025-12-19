@@ -6,7 +6,7 @@ import { analyzeResume } from '@/lib/analysis';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { resumeId, text, jdText, originalName } = body;
+        const { resumeId, text, jdText, originalName, options } = body;
 
         if (!text || !jdText) {
             return NextResponse.json({ error: "Missing resume text or job description" }, { status: 400 });
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
         console.log("Starting analysis for:", resumeId);
         let analysisResult;
         try {
-            analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown");
+            analysisResult = analyzeResume(text, jdText, resumeId, originalName || "Unknown", options);
         } catch (analysisError) {
             console.error("Detailed Analysis Error:", analysisError);
             return NextResponse.json({

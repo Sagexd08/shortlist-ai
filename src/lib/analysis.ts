@@ -1,4 +1,4 @@
-import { Skill, SkillCategory, ScoredSkill, MissingSkill, AnalysisResult } from './types';
+import { Skill, SkillCategory, ScoredSkill, MissingSkill, AnalysisResult, AnalysisOptions } from './types';
 const natural = require('natural');
 const computeCosineSimilarity = require('compute-cosine-similarity');
 const stopword = require('stopword');
@@ -19,21 +19,54 @@ const SKILL_TAXONOMY: Record<string, SkillCategory> = {
     "mentorship": "Soft Skills", "collaboration": "Soft Skills",
 };
 
-export function analyzeResume(resumeText: string, jdText: string, resumeId: string, originalFileName: string): AnalysisResult {
+export function analyzeResume(
+    resumeText: string,
+    jdText: string,
+    resumeId: string,
+    originalFileName: string,
+    options?: AnalysisOptions
+): AnalysisResult {
     const timestamp = new Date().toISOString();
     const resumeSkills = extractSkills(resumeText);
     const jdSkills = extractSkills(jdText);
     const similarity = computeSemanticSimilarity(resumeText, jdText);
     const { missing, present, extra, skillMatchScore } = analyzeSkillGaps(resumeSkills, jdSkills);
     const keywordCoverage = computeKeywordCoverage(resumeText, jdText);
-    const rawScore = (similarity * 40) + (skillMatchScore * 40) + (keywordCoverage * 20);
-    const matchScore = Math.min(100, Math.max(0, Math.round(rawScore)));
+
+    // Dynamic Weights
+    const wSemantic = options?.weights.semantic ?? 40;
+    const wSkills = options?.weights.skills ?? 40;
+    const wKeywords = options?.weights.keywords ?? 20;
+    const totalWeight = wSemantic + wSkills + wKeywords;
+
+    const rawScore = ((similarity * wSemantic) + (skillMatchScore * wSkills) + (keywordCoverage * wKeywords)) / (totalWeight || 100) * 100; // Normalize if weights don't sum to 100, but they usually should in UI
+
+    // Simple sum normalization:
+    // Actually, just summing them works if they are treated as parts of 100. 
+    // If they aren't, we should normalize. 
+    // Let's assume the UI sends them as parts of 100.
+
+    // Simpler calculation matching original logic style:
+    // Original: (Sim * 40) + (Skill * 40) + (Key * 20)  -- implicitly / 100
+    // New: (Sim * wS) + (Skill * wSk) + (Key * wK) ... / 100
+
+    const normalizedScore = ((similarity * wSemantic) + (skillMatchScore * wSkills) + (keywordCoverage * wKeywords)) / 100;
+
+    const matchScore = Math.min(100, Math.max(0, Math.round(normalizedScore)));
 
     const shortlistProbability = computeShortlistProbability(matchScore, resumeSkills.length, missing.length);
     const strengths = generateStrengths(present, extra, matchScore);
     const riskFlags = generateRiskFlags(missing, resumeText);
     const summary = generateSummary(matchScore, shortlistProbability, missing.length);
-    const recommendation = matchScore >= 80 ? 'Shortlist' : matchScore >= 50 ? 'Review' : 'Reject';
+
+    // Strictness Thresholds
+    const strictness = options?.strictness || 'medium';
+    let thresholds = { shortlist: 80, review: 50 };
+
+    if (strictness === 'high') thresholds = { shortlist: 85, review: 60 };
+    if (strictness === 'low') thresholds = { shortlist: 70, review: 40 };
+
+    const recommendation = matchScore >= thresholds.shortlist ? 'Shortlist' : matchScore >= thresholds.review ? 'Review' : 'Reject';
 
     return {
         id: `AN-${Date.now()}-${Math.floor(Math.random() * 1000)}`,

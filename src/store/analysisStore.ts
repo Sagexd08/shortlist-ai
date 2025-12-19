@@ -53,6 +53,8 @@ interface AnalysisState {
   clearHistory: () => void;
 }
 
+import { useSettingsStore } from './settingsStore';
+
 export const useAnalysisStore = create<AnalysisState>((set, get) => ({
   currentStep: 'idle',
   currentResult: null,
@@ -75,6 +77,8 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
     }, 1200);
 
     try {
+      const { weights, strictness } = useSettingsStore.getState();
+
       const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -82,7 +86,8 @@ export const useAnalysisStore = create<AnalysisState>((set, get) => ({
           resumeId: `temp-${Date.now()}`,
           text: resumeText,
           jdText: jobDescription,
-          originalName: resumeName
+          originalName: resumeName,
+          options: { weights, strictness }
         }),
       });
 
